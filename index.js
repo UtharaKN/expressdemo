@@ -1,26 +1,21 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
 
-const courses = [
-    {id:1, name: 'Science'},
-    {id:2, name: 'Maths'},
-    {id:3, name: 'CS'},
-];
+const url = 'mongodb://localhost/Courses';
 
-app.get('/', (req, res) => {
-    res.send('Hello Express');
+app.use(express.json());
+
+mongoose.connect(url, {useNewUrlParser:true});
+const con = mongoose.connection;
+
+con.on('open', () => {
+    console.log('Connected...');
 });
 
-app.get('/api/courses', (req, res) => {
-    res.send(courses);
+const courseRouter = require('./routes/courses');
+app.use('/courses',courseRouter);
+
+app.listen(3000, () => {
+    console.log('Listening to port...');
 });
-
-app.get('/api/courses/:id', (req, res) => {
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if(!course) res.status(200).send('The course with the given ID is not found');
-    res.send(course);
-});
-
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => console.log(`Listening to port ${port}...`));
